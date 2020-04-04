@@ -93,18 +93,28 @@ public class App {
   }
 
   public static boolean hasMilanTrader(List<Transaction> transactions) {
-    return false;
+    Stream<Transaction> transactionsStream = transactions.stream();
+    return transactionsStream.anyMatch(transaction -> transaction.getTrader().getCity().equals("Milan"));
   }
 
   public static List<Integer> getCambridgeTransactionsValue(List<Transaction> transactions) {
-    return Collections.emptyList();
+    Stream<Transaction> transactionsStream = transactions.stream();
+    return transactionsStream.filter(transaction -> transaction.getTrader().getCity().equals("Cambridge"))
+            .map(Transaction::getValue)
+            .collect(Collectors.toList());
   }
 
   public static int getMaxTransactionValue(List<Transaction> transactions) {
-    return 0;
+    Stream<Transaction> transactionsStream = transactions.stream();
+    return transactionsStream.map(Transaction::getValue)
+            .max(Integer::compareTo)
+            .orElse(0);
   }
 
   public static Transaction getMinTransaction(List<Transaction> transactions) {
-    return null;
+    Stream<Transaction> transactionsStream = transactions.stream();
+    return transactionsStream
+            .min(Comparator.comparingInt(Transaction::getValue))
+            .orElseThrow(NoClassDefFoundError::new);
   }
 }
