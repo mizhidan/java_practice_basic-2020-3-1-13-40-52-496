@@ -1,10 +1,19 @@
 package com.thoughtworks;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class App {
+
+  private List<Transaction> transactions;
 
   public static void main(String[] args) {
     // 以下是执行交易的交易员和发生的一系列交易,请为以下八个查询方法提供实现。
@@ -12,11 +21,14 @@ public class App {
     Trader mario = new Trader("Mario", "Milan");
     Trader alan = new Trader("Alan", "Cambridge");
     Trader brian = new Trader("Brian", "Cambridge");
-    List<Transaction> transactions = Arrays.asList(new Transaction(brian, 2011, 300),
-        new Transaction(raoul, 2012, 1000),
-        new Transaction(raoul, 2011, 400),
-        new Transaction(mario, 2012, 710), new Transaction(mario, 2012, 700),
-        new Transaction(alan, 2012, 950)
+
+    List<Transaction> transactions = Arrays.asList(
+            new Transaction(brian, 2011, 300),
+            new Transaction(raoul, 2012, 1000),
+            new Transaction(raoul, 2011, 400),
+            new Transaction(mario, 2012, 710),
+            new Transaction(mario, 2012, 700),
+            new Transaction(alan, 2012, 950)
     );
 
     // 1.找出2011年的所有交易并按交易额排序(从低到高)
@@ -45,19 +57,39 @@ public class App {
   }
 
   public static List<Transaction> get2011Transactions(List<Transaction> transactions) {
-    return Collections.emptyList();
+    Stream<Transaction> transcationsStream = transactions.stream();
+    Stream<Transaction> newStream = transcationsStream.filter((Transaction transaction) -> {
+      return transaction.getYear() == 2011;
+    });
+    List<Transaction> sortedList = newStream.sorted(Comparator.comparingInt(Transaction::getValue)).collect(Collectors.toList());
+    return sortedList;
   }
 
   public static List<String> getTradersCity(List<Transaction> transactions) {
-    return Collections.emptyList();
+    Set<String> cities = new HashSet<>();
+    Stream<Transaction> transcationsStream = transactions.stream();
+    transcationsStream.forEach(transaction -> {
+      cities.add(transaction.getTrader().getCity());
+    });
+    TreeSet<String> sortedSet = new TreeSet<>(Comparator.naturalOrder());
+    sortedSet.addAll(cities);
+    return new ArrayList(sortedSet);
   }
 
   public static List<Trader> getCambridgeTraders(List<Transaction> transactions) {
-    return Collections.emptyList();
+    Stream<Transaction> transactionsStream = transactions.stream();
+    return transactionsStream.map(Transaction::getTrader).distinct()
+            .filter(trader -> trader.getCity().equals("Cambridge"))
+            .sorted(Comparator.comparing(Trader::getName))
+            .collect(Collectors.toList());
   }
 
   public static List<String> getTradersName(List<Transaction> transactions) {
-    return Collections.emptyList();
+    Stream<Transaction> transactionsStream = transactions.stream();
+    return transactionsStream.map(transaction -> transaction.getTrader().getName())
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
   }
 
   public static boolean hasMilanTrader(List<Transaction> transactions) {
